@@ -12,6 +12,12 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(120), nullable=False) # Hashed
     is_host = db.Column(db.Boolean, default=False)
 
+    # Relationship with Booking to get all bookings made by a user
+    bookings = db.realtionship('Booking', backref='user', lazy=True)
+
+    # Relationship with Listing to get all listings by a user(if a user is host)
+    listings = db.relationship('Listing', backref='host', lazy=True)
+
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -24,6 +30,13 @@ class Listing(db.Model):
     title = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Float, nullable=False)
     location = db.Column(db.String(200), nullable=False)
+    
+    # Relationship with Booking to get all bookings for a listing
+    bookings = db.relationship('Booking', backref='listing', lazy=True)
 
-    host = db.relationship('User', backref=db.backref('listings', lazy=True))
+class Booking(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    listing_id = db.Column(db.Integer, db.ForeignKey('listing.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
 
