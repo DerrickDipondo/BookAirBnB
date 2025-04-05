@@ -3,6 +3,9 @@ from app import app, db
 from models import User, Listing
 from flask_login import login_user, logout_user, login_required, current_user
 
+@app.route('/')
+def home():
+    return "Welcome to BookAirBnB!"
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -13,7 +16,7 @@ def register():
     db.session.commit()
     return jsonify({'message': 'User registered'}), 201
 
-@app.route('api/login', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
