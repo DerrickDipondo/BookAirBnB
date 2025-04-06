@@ -21,7 +21,7 @@ migrate = Migrate(app, db)
 CORS(app)
 
 # Import models
-from models import User, Listing
+from models import User, Listing, Booking
 print("Using database:", app.config['SQLALCHEMY_DATABASE_URI'])
 
 # Import routes

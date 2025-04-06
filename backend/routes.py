@@ -34,14 +34,31 @@ def logout():
 @app.route('/api/listings', methods=['GET'])
 def get_listings():
     location = request.args.get('location', '')
-    max_price = request.arg.get('max_price', type=float)
+    max_price = request.args.get('max_price', type=float)
     query = Listing.query
     if location:
-        query = query.filter(Listing.location.like(f'%{location}'))
+        query = query.filter(Listing.location.like(f'%{location}%'))
     if max_price:
         query = query.filter(Listing.price <= max_price)
-    listings = [{'id': l.id, 'title': l.title, 'price': l.price, 'location': l.location} for l in query.all()]
+    listings = [{
+        'id': l.id, 
+        'title': l.title, 
+        'price': l.price, 
+        'location': l.location,
+        'host_id': l.host_id
+    } for l in query.all()]
     return jsonify(listings)
+
+@app.route('/api/listings/<int:listing_id>', methods=['GET'])
+def get_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    return jsonify({
+        'id': listing.id,
+        'title': listing.title,
+        'price': listing.price,
+        'location': listing.location,
+        'host_id': listing.host_id
+    })
 
 @app.route('/api/listings', methods=['POST'])
 @login_required
@@ -62,18 +79,40 @@ def create_listing():
     except KeyError:
         return jsonify({'message': 'Missing required fields'}), 400
     except ValueError:
-        return jsonify({'message': 'Invalid price format'}), 400
+        return jsonify({'message': 'Invalid price format'}), 400@app.route('/api/listings/<int:listing_id>', methods=['GET'])
 
-@app.route('/api/listings/<int:listing_id>', methods=['GET'])
-def get_listing(listing_id):
+
+@app.route('/api/listings/<int:listing_id>', methods=['PUT'])
+@login_required
+def update_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
-    return jsonify({
-        'id': listing.id,
-        'title': listing.title,
-        'price': listing.price,
-        'location': listing.location,
-        'host_id': listing.host_id
-    })
+    if listing.host_id != current_user.id:
+        return jsonify({'message': 'You can only update your own listings'}), 403
+    data = request.get_json()
+    try:
+        listing.title = data.get('title', listing.title)
+        listing.price = float(data.get('price', listing.price))
+        listing.location =data.get('location', listing.location)
+        db.session.commit()
+        return jsonify({'message': 'Listing updated'})
+    except KeyError:
+        return jsonify({'message': 'Invalid fields provided'}), 400
+    except ValueError:
+        return jsonify({'message': 'Invalid price format'}), 400
+    
+@app.route('/api/listings/<int:listing_id>', methods=['DELETE'])
+@login_required
+def delete_listing(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    if listing.host_id != current_user.id:
+        return jsonify({'message': 'You can only delete your own listings'}), 403
+    # Check if there are active bookings
+    if Booking.query.filter_by(listing_id=listing_id).first():
+        return jsonify({'message': 'Cannot delete listing with active bookings'}), 409
+    db.session.delete(listing)
+    db.session.commit()
+    return jsonify({'message': 'Listing deleted'})
+
 
 @app.route('/api/book', methods=['POST'])
 @login_required

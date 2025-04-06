@@ -13,7 +13,7 @@ class User(db.Model, UserMixin):
     is_host = db.Column(db.Boolean, default=False)
 
     # Relationship with Booking to get all bookings made by a user
-    bookings = db.realtionship('Booking', backref='user', lazy=True)
+    # bookings = db.realtionship('Booking', backref='user', lazy=True)
 
     # Relationship with Listing to get all listings by a user(if a user is host)
     listings = db.relationship('Listing', backref='host', lazy=True)
