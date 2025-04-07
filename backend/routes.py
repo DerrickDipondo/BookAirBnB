@@ -117,32 +117,6 @@ def delete_listing(listing_id):
 
 @app.route('/api/book', methods=['POST'])
 @login_required
-def book_listing():
-    data = request.get_json()
-    try:
-        listing = Listing.query.get_or_404(data['listing_id'])
-
-        booking_date = data['date']
-
-        # Basic check: ensure no overlapping booking
-        existing_booking = Booking.query.filter_by(listing_id=listing.id, date=booking_date).first()
-        if existing_booking:
-            return jsonify({'message': 'Date already booked'}), 409
-        booking = Booking(
-            user_id=current_user.id,
-            listing_id=listing.id,
-            date=booking_date
-        )
-        db.session.add(booking)
-        db.session.commit()
-        return jsonify({'message': 'Booking created', 'id': booking.id}), 201
-    except KeyError:
-        return jsonify({'message': 'Missing required fields'}), 400
-    except ValueError:
-        return jsonify({'message': 'Invalid date format (use YYYY-MM-DD)'}), 400
-    
-@app.route('/api/book', methods=['POST'])
-@login_required
 def create_booking():
     data = request.get_json()
     try:
@@ -163,11 +137,12 @@ def create_booking():
         return jsonify({'message': 'Missing required fields(listing_id, date)'}), 400
     except ValueError:
         return jsonify({'message': 'Invalid date format(use YYYY-MM-DD)'}), 400
-    
+
+
 @app.route('/api/bookings', methods=['GET'])
 @login_required
 def get_bookings():
-    bookings = Booking.query.get_or_404(user_id=current_user.id).all()
+    bookings = Booking.query.filter_by(user_id=current_user.id).all()
     return jsonify([{
         'id': b.id,
         'listing_id': b.listing_id,
@@ -175,7 +150,7 @@ def get_bookings():
         'title': Listing.query.get(b.listing_id).title
     } for b in bookings])
 
-@app.route('/api/bookings/<int:booking_id>', methods=['[PUT]'])
+@app.route('/api/bookings/<int:booking_id>', methods=['PUT'])
 @login_required
 def update_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
@@ -184,7 +159,7 @@ def update_booking(booking_id):
     data = request.get_json()
     try:
         new_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
-        existing_booking = Booking.query.filter(listing_id=booking.listing_id, date=new_date).first()
+        existing_booking = Booking.query.filter_by(listing_id=booking.listing_id, date=new_date).first()
         if existing_booking and existing_booking.id != booking_id:
             return jsonify({'message': 'Date already booked'}), 409
         booking.date = new_date
@@ -225,7 +200,7 @@ def create_review():
             return jsonify({'message': 'Rating must be between 1 and 5'}), 400
         db.session.add(review)
         db.session.commit()
-        return jsonify({'message': 'Review created', 'id': Review.id}), 201
+        return jsonify({'message': 'Review created', 'id': review.id}), 201
     except KeyError:
         return jsonify({'message': 'Missing required fields(booking_id, rating)'}), 400
     except ValueError:
@@ -262,15 +237,17 @@ def update_review(review_id):
     except ValueError:
         return jsonify({'message': 'Invalid rating format'}), 400
 
-@app.route('/api/review/<int:review_id>', methods=['DELETE'])
+@app.route('/api/reviews/<int:review_id>', methods=['DELETE'])
 @login_required
 def delete_review(review_id):
+    print("DELETE route hit")
+
     review = Review.query.get_or_404(review_id)
     if review.user_id != current_user.id:
         return jsonify({'message': 'You can only delete your reviews'}), 403
     db.session.delete(review)
     db.session.commit()
-    return jsonify({'message': 'Review deleted'})
+    return jsonify({'message': 'Review deleted'}), 200
 
 
     
