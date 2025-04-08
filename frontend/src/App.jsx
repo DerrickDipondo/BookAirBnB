@@ -1,30 +1,22 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css';
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
-  const [listings, setListings] = useState([]);
-
-  useEffect(() => {
-    const fetchListings = async () => {
-      const response = await axios.get('http://localhost:5000/api/listings');
-      setListings(response.data);
-    };
-    fetchListings();
-  }, []);
-
   return (
-    <div className='App'>
-      <h1>BookAirbnb</h1>
-      <ul>
-        {listings.map(listing => (
-          <li key={listing.id}>
-            {listing.title} - ${listing.price} - {listing.location}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <Navbar/>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<h1>BookAirbnb</h1>} />
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 }
 
-export default App
+export default App;
