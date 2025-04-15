@@ -7,14 +7,16 @@ function Register() {
     const [password, setPassword] = useState('');
     const [isHost, setIsHost] = useState(false);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/register', { eamil, password, is_host: isHost });
-            Navigate('/login');
+            await axios.post('http://localhost:5000/api/register', { email, password, is_host: isHost });
+            navigate('/login');
         } catch (err) {
-            setError('Registration failed');
+            setError(err.resposnse?.data?.message || 'Registration failed');
+            console.log('Registration error:', err.response?.data, err.message); // Debug log
         }
     };
 
