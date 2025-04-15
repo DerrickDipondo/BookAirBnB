@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Register() {
     const [email, setEmail] = useState('');
@@ -11,45 +11,49 @@ function Register() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
-            await axios.post('http://localhost:5000/api/register', { email, password, is_host: isHost });
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/register`, { email, password, is_host: isHost });
             navigate('/login');
         } catch (err) {
-            setError(err.resposnse?.data?.message || 'Registration failed');
-            console.log('Registration error:', err.response?.data, err.message); // Debug log
+            setError(err.response?.data?.message || 'Registration failed');
         }
     };
 
     return (
         <div>
             <h2>Register</h2>
-            {error && <p>{error}</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <form onSubmit={handleSubmit}>
-                <input 
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                    required
-              />
-                <input 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    required
-              />
-              <label>
-                <input 
-                    type="checkbox"
-                    checked={isHost}
-                    onChange={(e) => setIsHost(e.target.checked)}
-               />
-               Register as Host
-              </label>
-              <label>
+                <div>
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        required
+                    />
+                </div>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={isHost}
+                        onChange={(e) => setIsHost(e.target.checked)}
+                    />
+                    Register as Host
+                </label>
                 <button type="submit">Register</button>
-              </label>
             </form>
         </div>
     );
