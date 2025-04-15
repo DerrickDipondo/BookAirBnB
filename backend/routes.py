@@ -8,6 +8,18 @@ from datetime import datetime
 def home():
     return "Welcome to BookAirBnB!"
 
+@app.route('/api/me', methods=['GET'])
+@jwt_required()
+def me():
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    return jsonify({
+        'id': user.id,
+        'email': user.email,
+        'is_host': user.is_host,
+        'is_admin': user.is_admin
+    })
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -26,7 +38,7 @@ def login():
     if user and user.check_password(data['password']):
         access_token = create_access_token(identity=user.id)
         return jsonify({
-            'message': 'Logged in'
+            'message': 'Logged in',
             'access_token': access_token,
             'id': user.id,
             'is_host': user.is_host,
@@ -65,7 +77,7 @@ def get_listing(listing_id):
     })
 
 @app.route('/api/listings', methods=['POST'])
-@jwt_required
+@jwt_required()
 def create_listing():
     user_id = get_jwt_identity()
     user = User.query.get_or_404(user_id)
@@ -89,7 +101,7 @@ def create_listing():
 
 
 @app.route('/api/listings/<int:listing_id>', methods=['PUT'])
-@jwt_required
+@jwt_required()
 def update_listing(listing_id):
     user_id = get_jwt_identity()
     listing = Listing.query.get_or_404(listing_id)
@@ -231,7 +243,7 @@ def get_reviews(listing_id):
        'created_at': r.created_at.isoformat()
    } for r in reviews])
 
-@app.route('/api/reviews/<int:review_id>', methods=['POST'])
+@app.route('/api/reviews/<int:review_id>', methods=['PUT'])
 @jwt_required()
 def update_review(review_id):
     user_id = get_jwt_identity()
@@ -263,7 +275,7 @@ def delete_review(review_id):
         return jsonify({'message': 'Review deleted'}), 200
     db.session.delete(review)
     db.session.commit()
-    return jsonify({'message': 'Review delete by admin'})
+    return jsonify({'message': 'Review deleted by admin'})
 
 
     

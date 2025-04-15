@@ -1,24 +1,22 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
+from extensions import db, jwt, login_manager
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 
 
 # Initialize extensions
-db = SQLAlchemy(app)
-login_manager = LoginManager()
+db.init_app(app)
+jwt.init_app(app)
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
-# Intialize Migrate with app & db
+# Intialize Migrate
 migrate = Migrate(app, db)
 
-# Enable CORS for React frontend
-CORS(app)
 
 # Import models
 from models import User, Listing, Booking
@@ -30,3 +28,5 @@ from routes import *
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+
