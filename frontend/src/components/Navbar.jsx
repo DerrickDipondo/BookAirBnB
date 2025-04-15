@@ -10,6 +10,12 @@ function Navbar() {
             {user ? (
                 <>
                 <span> | </span>
+                <Link to='/bookings'>My Bookings</Link>
+                <span> | </span>
+                {user.is_host && <Link to="/create-listing">Create Listing</Link>}
+                {user.is_host && <span> | </span>}
+                {user.is_admin && <Link to="/admin">Admin</Link>}
+                {user.is_admin && <span> | </span>}
                 <button onClick={logout}>Logout</button>
                 </>
             ) : (

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
@@ -6,6 +5,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Listings from './components/Listings';
 import CreateListing from './components/CreateListing';
+import Bookings from './components/Bookings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -23,6 +23,14 @@ function App() {
                             <ProtectedRoute requireHost>
                                 <CreateListing />
                             </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/bookings"
+                        element={
+                          <ProtectedRoute>
+                            <Bookings />
+                          </ProtectedRoute>
                         }
                     />
                     <Route
