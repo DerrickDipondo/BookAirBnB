@@ -10,7 +10,7 @@ function Bookings() {
     useEffect(() => {
         const fetchBookings = async () => {
             try {
-                const response = await.get('/api/bookings');
+                const response = await get('/api/bookings');
                 if (Array.isArray(response.data)) {
                     setBookings(response.data);
                 } else {

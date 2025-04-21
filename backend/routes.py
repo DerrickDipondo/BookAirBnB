@@ -3,6 +3,7 @@ from app import app, db
 from models import User, Listing, Booking, Review
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route('/')
 def home():
@@ -23,28 +24,34 @@ def me():
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
-    if User.query.filter_by(email=data['email']).first():
+    if User.query.filter_by(email=data.get('email')).first():
         return jsonify({'message': 'Email already registered'}), 400
-    user = User(email=data['email'], is_host=data.get('is_host', False), is_admin=data.get('is_admin', False))
-    user.set_password(data['password'])
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'message': 'User registered', 'id': user.id}), 201
+    try:
+        user = User(
+            email=data['email'],
+            password_hash=generate_password_hash(data['password']),
+            is_host=data.get('is_host', False),
+            is_admin=False
+        )
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'message': 'User registered successfully'}), 201
+    except KeyError:
+        return jsonify({'message': 'Missing email or password'}), 400
 
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(email=data['email']).first()
-    if user and user.check_password(data['password']):
-        access_token = create_access_token(identity=user.id)
-        return jsonify({
-            'message': 'Logged in',
-            'access_token': access_token,
-            'id': user.id,
-            'is_host': user.is_host,
-            'is_admin': user.is_admin
-        })
-    return jsonify({'message': 'Invalid credentials'}), 401
+    user = User.query.filter_by(email=data.get('email')).first()
+    if not user or not user.check_password(data.get('password', '')):
+        return jsonify({'message': 'Invalid credentials'}), 401
+    access_token = create_access_token(identity=user.id)
+    return jsonify({
+        'access_token': access_token,
+        'id': user.id,
+        'is_host': user.is_host,
+        'is_admin': user.is_admin
+    })
 
 
 @app.route('/api/listings', methods=['GET'])

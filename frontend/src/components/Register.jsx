@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
     const [email, setEmail] = useState('');
@@ -12,10 +12,13 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        console.log('Register payload:', { email, password, is_host: isHost });
         try {
-            await axios.post(`${import.meta.env.VITE_API_URL}/api/register`, { email, password, is_host: isHost });
+            const response = await axios.post('/api/register', { email, password, is_host: isHost });
+            console.log('Register response:', response.data);
             navigate('/login');
         } catch (err) {
+            console.error('Register error:', err.response?.data || err.message);
             setError(err.response?.data?.message || 'Registration failed');
         }
     };
