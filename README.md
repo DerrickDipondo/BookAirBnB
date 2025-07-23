@@ -15,7 +15,7 @@ This version served as the **starting point** for building and validating core b
 
 > ⚠️ The project has since been **refactored into a microservice architecture** for scalability and maintainability.
 
-👉 [Click here to view the microservice version](https://github.com/DerrickDipondo/BookAirBnB-Microservices)
+👉 [Unfortunately, the microservice version is private](https://github.com/DerrickDipondo/BookAirBnB-Microservices)
 
 ### 🔧 Tech Stack
 - Backend: Python (Flask), SQLAlchemy, SQLite
