@@ -1,6 +1,6 @@
-# BookAirBnB (Monolithic Version)
+# eHome (Monolithic Version)
 
-This repository contains the original **monolithic** implementation of *BookAirBnB*, an online travel platform where users can browse, book, and manage property listings.
+This repository contains the original **monolithic** implementation of *eHome*, an online travel platform where users can browse, book, and manage property listings.
 
 ### 🏗️ Project Overview
 - Built as a monolith with a single Flask backend and a React frontend.
